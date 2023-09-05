@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Car Price Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="stylesheet" href="../static/css/style.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Welcomee to Car Price Predictor Model</h1>
+
+        <p>Please enter some details</p>
+
+        <form method="post" accept-charset="utf-8">
+
+            <!-- Company -->
+            <div>
+                <label for="">Select Compamy:</label>
+                <select class="selectpicker form-control" name="company" id="company" required
+                    onchange="load_car_models(this.id,'car_models')">
+                    {% for company in companies %}
+                    <option value="{{ company }}">{{ company }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Models -->
+            <div>
+                <label for="">Select Model:</label>
+                <select class="selectpicker form-control" name="car_models" id="car_models" required>
+                </select>
+            </div>
+            <!-- Year -->
+            <div>
+                <label for="">Select Year of Purchase:</label>
+                <select class="selectpicker form-control" name="year" id="year" required>
+                    {% for year in years %}
+                    <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <!-- Fuel Type -->
+            <div>
+                <label for="">Select Fuel Type:</label>
+                <select class="form-control" name="fuel_type" id="fuel_type">
+                    {% for fuel_type in fuel_types %}
+                    <option value="{{ fuel_type }}">{{ fuel_type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <!-- kms Driven -->
+            <div>
+                <label for="">Enter no. of km drvien:</label>
+                <input class="form-control" type="number" name="kms_driven" id="kms_driven">
+            </div>
+            <button class="btn btn-primary" onclick="send_data()">
+                Predict
+            </button>
+
+        </form>
+
+        <div class="row">
+            <div class="col-12" style="text-align: center">
+                <h4><span id="prediction"></span></h4>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function load_car_models(company_id, car_model_id) {
+                var company = document.getElementById(company_id);
+                var car_model = document.getElementById(car_model_id);
+                console.log(company.value);
+                car_model.value = "";
+                car_model.innerHTML = "";
+                {% for company in companies %}
+                if (company.value == "{{ company }}") {
+                    {% for model in car_models %}
+                    {% if company in model %}
+
+                    var newOption = document.createElement("option");
+                    newOption.value = "{{ model }}";
+                    newOption.innerHTML = "{{ model }}";
+                    car_model.options.add(newOption);
+                    {% endif %}
+                    {% endfor %}
+                }
+                {% endfor %}
+            }
+
+
+        function form_handler(event) {
+            event.preventDefault();
+        }
+        function send_data() {
+            document.querySelector('form').addEventListener("submit", form_handler);
+
+            var fd = new FormData(document.querySelector('form'));
+
+            var xhr = new XMLHttpRequest({ mozSystem: true });
+
+            xhr.open('POST', '/predict', true);
+            document.getElementById('prediction').innerHTML = "Predicting....";
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == XMLHttpRequest.DONE) {
+                    document.getElementById('prediction').innerHTML = "Prediction: ₹" + xhr.responseText;
+                }
+            };
+
+            xhr.onload = function () { };
+
+            xhr.send(fd);
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
+</body>
